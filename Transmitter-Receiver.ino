@@ -1,8 +1,7 @@
 String input = "Hello, World!";
-boolean transmit = true;
+boolean transmitOrNot = true;
 
 int offCounter = 0;
-boolean initiated = false;
 
 const int LED_PIN = 6;
 const int INPUT_PIN = 2;
@@ -94,17 +93,6 @@ void transmit() {
 }
 
 void receive() {
-  while (digitalRead(INPUT_PIN) == LOW) {
-    delay(TIME_UNIT / TEST_FREQUENCY);
-    offCounter++;
-  }
-  if (offCounter > TEST_FREQUENCY * 3 && offCounter <= TEST_FREQUENCY * 8 && initiated) {
-    Serial.print(' ');
-  } else if (offCounter > TEST_FREQUENCY * 8 && initiated) {
-    Serial.println();
-  }
-
-  initiated = true;
   boolean sameCharacter = true;
   int currentMorseCode[10] = {0};
   int index = 0;
@@ -149,6 +137,16 @@ void receive() {
       }
     }
   }
+  while (digitalRead(INPUT_PIN) == LOW) {
+    delay(TIME_UNIT / TEST_FREQUENCY);
+    offCounter++;
+  }
+  if (offCounter > TEST_FREQUENCY * 3 && offCounter <= TEST_FREQUENCY * 8) {
+    Serial.print(' ');
+  } else if (offCounter > TEST_FREQUENCY * 8) {
+    Serial.println();
+    Serial.print("RECEIVING: ");
+  }
 }
 
 void setup() {
@@ -159,14 +157,19 @@ void setup() {
 }
 
 void loop() {
-  while (transmit) {
+  while (transmitOrNot) {
     delay(TIME_UNIT * 28);
-    Serial.print("TRANSMITTING: ")
+    Serial.print("TRANSMITTING: ");
     transmit();
     Serial.println();
   }
-  while (!transmit) {
-    Serial.print("RECEIVING: ")
-    receive();
+  if (!transmitOrNot) {
+    while (digitalRead(INPUT_PIN) == LOW) {
+      delay(TIME_UNIT / TEST_FREQUENCY);
+    }
+    Serial.print("RECEIVING: ");
+    while (!transmitOrNot) {
+      receive();
+    }
   }
 }
