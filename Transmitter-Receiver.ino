@@ -1,3 +1,4 @@
+//PULLUP
 const int RECEIVER_PIN = 2;
 const int TRANSMITTER_PIN = 6;
 const int TRANSMITTING_LED_PIN = LED_BUILTIN;
@@ -76,7 +77,7 @@ void loop() {
   String input;
   boolean transmitting = false;
 
-  while (digitalRead(RECEIVER_PIN) == LOW && !transmitting) {
+  while (digitalRead(RECEIVER_PIN) == HIGH && !transmitting) {
     delay(TIME_UNIT / TEST_FREQUENCY);
     if (Serial.available() > 0) {
       input = Serial.readString();
@@ -94,7 +95,7 @@ void loop() {
       int receivedIndex = 0;
       while (counter <= TEST_FREQUENCY) {
         counter = 0;
-        while (digitalRead(RECEIVER_PIN) == HIGH){
+        while (digitalRead(RECEIVER_PIN) == LOW){
           delay(TIME_UNIT / TEST_FREQUENCY);
           counter++;
         }
@@ -105,7 +106,7 @@ void loop() {
         }
         receivedIndex++;
         counter = 0;
-        while (digitalRead(RECEIVER_PIN) == LOW && counter <= TEST_FREQUENCY) {
+        while (digitalRead(RECEIVER_PIN) == HIGH && counter <= TEST_FREQUENCY) {
           delay(TIME_UNIT / TEST_FREQUENCY);
           counter++;
         }
@@ -120,7 +121,7 @@ void loop() {
         }
       }
       counter = 0;
-      while (digitalRead(RECEIVER_PIN) == LOW && counter <= TEST_FREQUENCY * 6) {
+      while (digitalRead(RECEIVER_PIN) == HIGH && counter <= TEST_FREQUENCY * 6) {
         delay(TIME_UNIT / TEST_FREQUENCY);
         counter++;
       }
