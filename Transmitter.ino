@@ -1,9 +1,10 @@
 String input = "Hello, World!";
 
-const int DOT = 1;
-const int DASH = 2;
 int ledPin = 6;
 int timeUnit = 200;
+
+const int DOT = 1;
+const int DASH = 2;
 
 const int MORSE_CODE[][10] = {
   {DOT, DASH},
@@ -52,27 +53,12 @@ const int MORSE_CODE[][10] = {
   {DASH, DOT, DASH, DOT, DASH}
 };
 
-const char CHARACTERS[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L','M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X','Y', 'Z', '1', '2','3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '?', '!','(', ')', ':', ';'}; //could add duplicate at end in case character doesn't match any of these
-
-void transmitMorseCode(const int currentChar[]) {
-  for (int k = 0; currentChar[k] != 0; k++) {
-    if (currentChar[k] == DOT) {
-      digitalWrite(ledPin, HIGH);
-      delay(timeUnit);
-      digitalWrite(ledPin, LOW);
-    } else if (currentChar[k] == DASH) {
-      digitalWrite(ledPin, HIGH);
-      delay(timeUnit * 3);
-      digitalWrite(ledPin, LOW);
-    }
-    delay(timeUnit);
-  }
-  delay(timeUnit * 2);
-}
-
+const char CHARACTERS[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L','M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X','Y', 'Z', '1', '2','3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '?', '!','(', ')', ':', ';'};
+  
 void transmitStringInMorseCode(String textInput) {
   for (int i = 0; i < textInput.length(); i++) {
     if (textInput[i] == ' ') {
+      Serial.print(' ');
       delay(timeUnit * 4);
     } else {
       int j = 0;
@@ -81,7 +67,19 @@ void transmitStringInMorseCode(String textInput) {
       }
       if (j < sizeof(CHARACTERS)) {
         Serial.print(CHARACTERS[j]);
-        transmitMorseCode(MORSE_CODE[j]);
+        for (int k = 0; MORSE_CODE[j][k] != 0; k++) {
+          if (MORSE_CODE[j][k] == DOT) {
+            digitalWrite(ledPin, HIGH);
+            delay(timeUnit);
+            digitalWrite(ledPin, LOW);
+          } else if (MORSE_CODE[j][k] == DASH) {
+            digitalWrite(ledPin, HIGH);
+            delay(timeUnit * 3);
+            digitalWrite(ledPin, LOW);
+         }
+         delay(timeUnit);
+        }
+        delay(timeUnit * 2);
       } else {
         Serial.print('*');
       }
