@@ -1,28 +1,28 @@
-/*
-This Arduino sketch allows two boards to communicate with each other using Morse Code.
+/* 
+ * This Arduino sketch allows two boards to communicate with each other using Morse Code.
+ *
+ * After uploading this sketch to two Arduino boards, a user may send a string input to one of the boards via the 
+ * Serial Monitor. This board then transmits in Morse Code each character of the input using an infrared emitter. 
+ * The other board simultaneously receives this message with an infrared sensor, converting the received Morse Code 
+ * back into English and printing it to the Serial Monitor. When the transmission is complete, new string inputs 
+ * may continue to be sent to either board to be transmitted and received as described above. 
+ * Note: If inputs are sent to both boards at the same time, neither will be received.
+ *
+ * String input from Serial Monitor (input) --> Morse Code transmitted by IR emitter (output) 
+ * Morse Code received by IR sensor (input) --> English characters printed to the Serial Monitor (output) 
+ */
 
-After uploading this sketch to two Arduino boards, a user may send a string input to one of the boards via the Serial Monitor. This board then transmits in Morse Code each character of the input using an infrared emitter. The other board simultaneously receives this message with an infrared sensor, converting the received Morse Code back into English and printing it to the Serial Monitor. When the transmission is complete, new string inputs may continue to be sent to either board to be transmitted and received as described above.
-NB: If inputs are sent to both boards at the same time, neither will be received.
-
-String input from Serial Monitor (input) --> Morse Code transmitted by IR emitter (output)
-Morse Code received by IR sensor (input) --> English characters printed to the Serial Monitor (output)
-*/
 
 //Define pins where the IR sensor, IR emitter, and LED signaling transmission connect to the board
 const int RECEIVER_PIN = 2;
 const int TRANSMITTER_PIN = 6;
 const int TRANSMITTING_LED_PIN = LED_BUILTIN;
 
-const int TIME_UNIT = 100;       //the length of one Morse Code dot in milliseconds
-const int TEST_FREQUENCY = 10;   //the number of times per time unit a change should be tested for
-
+const int TIME_UNIT = 10;        //Define the length of one Morse Code dot in milliseconds
 
 //Define Morse Code equivalent for each character
-const char CHARACTERS[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L','M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X','Y', 'Z', '1', '2','3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '?', '!','(', ')', ':', ';', '\'', '"', '/', '=', '+', '-', '*'};
-
 const int DOT = 1;
-const int DASH = 2;
-
+const int DASH = 3;
 const int MORSE_CODE[][10] = {
   {DOT, DASH},
   {DASH, DOT, DOT, DOT},
@@ -66,8 +66,8 @@ const int MORSE_CODE[][10] = {
   {DASH, DOT, DASH, DOT, DASH, DASH},
   {DASH, DOT, DASH, DASH, DOT},
   {DASH, DOT, DASH, DASH, DOT, DASH},
-  {DASH, DASH, DASH, DOT, DOT},
-  {DASH, DOT, DASH, DOT, DASH},
+  {DASH, DASH, DASH, DOT, DOT, DOT},
+  {DASH, DOT, DASH, DOT, DASH, DOT},
   {DOT, DASH, DASH, DASH, DASH, DOT},
   {DOT, DASH, DOT, DOT, DASH, DOT},
   {DASH, DOT, DOT, DASH, DOT},
@@ -76,24 +76,36 @@ const int MORSE_CODE[][10] = {
   {DASH, DOT, DOT, DOT, DOT, DASH},
   {DOT, DOT, DOT, DOT, DOT, DOT}
 };
+const char CHARACTERS[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L','M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X','Y', 'Z', '1', '2','3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '?', '!','(', ')', ':', ';', '\'', '"', '/', '=', '+', '-', '*'};
 
+
+int pulseLength(int pin, int value, int timeout){
+  int onCounter = 0;
+    while (onCounter < timeout && digitalRead(pin) == value){
+      delay(1);
+      onCounter++;
+    }
+  return onCounter;
+}
 
 void setup() {
   //Initialize Serial communication
   Serial.begin(9600);
+
   //Initialize pins as outputs and inputs
   pinMode(TRANSMITTER_PIN, OUTPUT);
   pinMode(TRANSMITTING_LED_PIN, OUTPUT);
-  pinMode(RECEIVER_PIN, INPUT_PULLUP);
+  pinMode(RECEIVER_PIN, INPUT);
 }
 
 void loop() {
   String input;
   boolean transmitting = false;
+  int currentPulse = 0;
 
   //Delay until either the IR sensor is activated or a string input is received from the Serial Monitor
-  while (digitalRead(RECEIVER_PIN) == HIGH && !transmitting) {
-    delay(TIME_UNIT / TEST_FREQUENCY);
+  while (digitalRead(RECEIVER_PIN) == LOW && !transmitting) {
+    delay(10);
     if (Serial.available() > 0) {
       input = Serial.readString();
       input.toUpperCase();
@@ -101,38 +113,26 @@ void loop() {
     }
   }
 
-
-  //If the IR sensor is activated, receive the Morse Code being transmitted and print the 
-  //corresponding English characters to the Serial Monitor
+  //If the IR sensor is activated, receive the Morse Code being transmitted and print the corresponding English characters to the Serial Monitor
   if (!transmitting) {
     Serial.println();
     Serial.print("   RECEIVING: ");
 
-    int counter = 0;
-    while (counter <= TEST_FREQUENCY * 6) {         //Iterate while receiving the same message
-      int receivedMorseCode[10] = {0};              //array to store received dots and dashes
+    //Iterate while receiving the same message
+    while (currentPulse <= TIME_UNIT * 6) {
+      int receivedMorseCode[10] = {0};        //Define array to store received dots and dashes
       int receivedIndex = 0;
+      boolean sameCharacter = true;
 
-      while (counter <= TEST_FREQUENCY) {           //Iterate while receiving the same character
-        //Delay and count while the IR sensor is activated to determine whether a dot or dash is being received
-        counter = 0;
-        while (digitalRead(RECEIVER_PIN) == LOW){
-          delay(TIME_UNIT / TEST_FREQUENCY);
-          counter++;
-        }
-        if (counter <= TEST_FREQUENCY) {            //if IR sensor is activated for up to one time unit
-          receivedMorseCode[receivedIndex] = DOT;
-        } else {                                    //if IR sensor is activated for more than one time unit
+      //Iterate while receiving the same character
+      while (sameCharacter) {
+        if (pulseLength(RECEIVER_PIN, HIGH, (TIME_UNIT * 100)) <= TIME_UNIT) {
+         receivedMorseCode[receivedIndex] = DOT;
+        } else {
           receivedMorseCode[receivedIndex] = DASH;
         }
         receivedIndex++;
-
-        //Delay and count while the IR sensor is not activated to see if the same character is still being received
-        counter = 0;
-        while (digitalRead(RECEIVER_PIN) == HIGH && counter <= TEST_FREQUENCY) {
-          delay(TIME_UNIT / TEST_FREQUENCY);
-          counter++;
-        }
+        sameCharacter = pulseLength(RECEIVER_PIN, LOW, (TIME_UNIT + 1)) <= TIME_UNIT;
       }
 
       //Match the received Morse Code array to its corresponding English character and print the character to the Serial Monitor
@@ -145,51 +145,39 @@ void loop() {
           }
         }
       }
-
-      //Delay and count while IR sensor is not activated to see if the same word or else the same message is still being received
-      counter = 0;
-      while (digitalRead(RECEIVER_PIN) == HIGH && counter <= TEST_FREQUENCY * 6) {
-        delay(TIME_UNIT / TEST_FREQUENCY);
-        counter++;
-      }
-      if (counter > TEST_FREQUENCY * 2 && counter <= TEST_FREQUENCY * 6) {
+      currentPulse = pulseLength(RECEIVER_PIN, LOW, (TIME_UNIT * 6 + 1));
+      if (currentPulse > TIME_UNIT * 2 && currentPulse <= TIME_UNIT * 6) {
         Serial.print(' ');
       }
     } 
   }
 
-
-  //Otherwise, if a string input has been received, transmit each character of that input in 
-  //Morse Code while an LED signaling transmission is lit
+  //Otherwise, if a string input has been received, transmit each character of that input in Morse Code while an LED signaling transmission is lit
   if (transmitting) {
-    digitalWrite(TRANSMITTING_LED_PIN, HIGH);   //Light LED signaling transmission
+    digitalWrite(TRANSMITTING_LED_PIN, HIGH);
     Serial.println();
     Serial.print("TRANSMITTING: ");
 
     //Iterate until the last character of the input is transmitted
     for (int transmitIndex = 0; transmitIndex < input.length(); transmitIndex++) {
+
       //If the current character is a space character, delay for an additional four time units (seven total)
       if (input[transmitIndex] == ' ') {
         Serial.print(' ');
         delay(TIME_UNIT * 4);
-      } else if (input[transmitIndex] != 10 && input[transmitIndex] != 13) {   //if it is a character other than a space or a new line
+      }
+
+      //If the current character is a character other than a space or a new line, match the English character with the corresponding Morse Code
+      if (input[transmitIndex] != 10 && input[transmitIndex] != 13 && input[transmitIndex] != ' ') {
         int characterIndex = 0;
-        //Match the English character with the corresponding Morse Code
         while (characterIndex < (sizeof(CHARACTERS) - 1) && input[transmitIndex] != CHARACTERS[characterIndex]) {
           characterIndex++;
         }      
-        Serial.print(CHARACTERS[characterIndex]);   //Print character being transmitted to the Serial Monitor
+        Serial.print(CHARACTERS[characterIndex]);
         for (int dotDashIndex = 0; MORSE_CODE[characterIndex][dotDashIndex] != 0; dotDashIndex++) {
-          //If the current Morse Code is a dot, transmit a dot.
-          if (MORSE_CODE[characterIndex][dotDashIndex] == DOT) {
-            digitalWrite(TRANSMITTER_PIN, HIGH);
-            delay(TIME_UNIT);
-            digitalWrite(TRANSMITTER_PIN, LOW);
-          } else {   //If the current Morse Code is a dash, transmit a dash.
-            digitalWrite(TRANSMITTER_PIN, HIGH);
-            delay(TIME_UNIT * 3);
-            digitalWrite(TRANSMITTER_PIN, LOW);
-          }
+          digitalWrite(TRANSMITTER_PIN, HIGH);
+          delay(TIME_UNIT * MORSE_CODE[characterIndex][dotDashIndex]);
+          digitalWrite(TRANSMITTER_PIN, LOW);
           delay(TIME_UNIT);
         }
         delay(TIME_UNIT * 2);
@@ -199,3 +187,5 @@ void loop() {
     digitalWrite(TRANSMITTING_LED_PIN, LOW);
   }
 }
+
+
