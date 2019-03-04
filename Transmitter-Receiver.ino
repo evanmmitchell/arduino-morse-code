@@ -1,6 +1,7 @@
 String input = "Hello, World!";
-boolean transmitOrNot = true;
 
+boolean transmitOrNot = true;
+int transmitIndex = 0;
 int offCounter = 0;
 
 const int LED_PIN = 6;
@@ -61,23 +62,22 @@ const int MORSE_CODE[][10] = {
 const char CHARACTERS[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L','M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X','Y', 'Z', '1', '2','3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '?', '!','(', ')', ':', ';'};
 
 void transmit() {
-  for (int i = 0; i < input.length(); i++) {
-    if (input[i] == ' ') {
+    if (input[transmitIndex] == ' ') {
       Serial.print(' ');
       delay(TIME_UNIT * 4);
     } else {
-      int j = 0;
-      while (j < sizeof(CHARACTERS) && input[i] != CHARACTERS[j]) {
-        j++;
+      int characterIndex = 0;
+      while (characterIndex < sizeof(CHARACTERS) && input[transmitIndex] != CHARACTERS[characterIndex]) {
+        characterIndex++;
       }
-      if (j < sizeof(CHARACTERS)) {
-        Serial.print(CHARACTERS[j]);
-        for (int k = 0; MORSE_CODE[j][k] != 0; k++) {
-          if (MORSE_CODE[j][k] == DOT) {
+      if (characterIndex < sizeof(CHARACTERS)) {
+        Serial.print(CHARACTERS[characterIndex]);
+        for (int dotDashIndex = 0; MORSE_CODE[characterIndex][dotDashIndex] != 0; dotDashIndex++) {
+          if (MORSE_CODE[characterIndex][dotDashIndex] == DOT) {
             digitalWrite(LED_PIN, HIGH);
             delay(TIME_UNIT);
             digitalWrite(LED_PIN, LOW);
-          } else if (MORSE_CODE[j][k] == DASH) {
+          } else if (MORSE_CODE[characterIndex][dotDashIndex] == DASH) {
             digitalWrite(LED_PIN, HIGH);
             delay(TIME_UNIT * 3);
             digitalWrite(LED_PIN, LOW);
@@ -89,50 +89,49 @@ void transmit() {
         Serial.print('*');
       }
     }
-  }
 }
 
 void receive() {
   boolean sameCharacter = true;
-  int currentMorseCode[10] = {0};
-  int index = 0;
+  int receivedMorseCode[10] = {0};
+  int receiveIndex = 0;
   int numberOfDots = 0;
   int numberOfDashes = 0;
 
   while (sameCharacter) {
-    if (index < sizeof(currentMorseCode)) {
+    if (receiveIndex < sizeof(receivedMorseCode)) {
       int onCounter = 0;
       while (digitalRead(INPUT_PIN) == HIGH){
         delay(TIME_UNIT / TEST_FREQUENCY);
         onCounter++;
       }
       if (onCounter <= TEST_FREQUENCY) {
-        currentMorseCode[index] = DOT;
+        receivedMorseCode[receiveIndex] = DOT;
         numberOfDots++;
-        index++;
+        receiveIndex++;
       } else if (onCounter <= TEST_FREQUENCY * 3) {
-        currentMorseCode[index] = DASH;
+        receivedMorseCode[receiveIndex] = DASH;
         numberOfDashes++;
-        index++;
+        receiveIndex++;
       } else {
-        index = sizeof(currentMorseCode);
+        receiveIndex = sizeof(receivedMorseCode);
       }
       offCounter = 0;
-      while (digitalRead(INPUT_PIN) == LOW && offCounter <= TEST_FREQUENCY * 1) {
+      while (digitalRead(INPUT_PIN) == LOW && offCounter <= TEST_FREQUENCY) {
         delay(TIME_UNIT / TEST_FREQUENCY);
         offCounter++;
       }
-      if (offCounter > TEST_FREQUENCY * 1) {
+      if (offCounter > TEST_FREQUENCY) {
         sameCharacter = false;
       }
     }
   }
 
-  for (int i = 0; i < sizeof(MORSE_CODE); i++) {
-    for (int j = 0; j < sizeof(currentMorseCode) && MORSE_CODE[i][j] == currentMorseCode[j]; j++) {
-      if (currentMorseCode[j] == 0) {
-        Serial.print(CHARACTERS[i]);
-        i = sizeof(MORSE_CODE);
+  for (int characterIndex = 0; characterIndex < sizeof(CHARACTERS); characterIndex++) {
+    for (int dotDashIndex = 0; dotDashIndex < sizeof(receivedMorseCode) && MORSE_CODE[characterIndex][dotDashIndex] == receivedMorseCode[dotDashIndex]; dotDashIndex++) {
+      if (receivedMorseCode[dotDashIndex] == 0) {
+        Serial.print(CHARACTERS[characterIndex]);
+        characterIndex = sizeof(CHARACTERS);
         break;
       }
     }
@@ -157,17 +156,35 @@ void setup() {
 }
 
 void loop() {
-  while (transmitOrNot) {
-    delay(TIME_UNIT * 28);
-    Serial.print("TRANSMITTING: ");
-    transmit();
+  if (transmitOrNot) {
+    delay(TIME_UNIT);
     Serial.println();
+    Serial.print("TRANSMITTING: ");
+    transmitIndex = 0;
+    while (transmitOrNot) {
+      transmit();
+      transmitIndex++;
+      if (transmitIndex == input.length() && transmitOrNot) {
+        transmitIndex = 0;
+        for (int i = 0; i < 28 && transmitOrNot; i++) {
+          delay(TIME_UNIT);
+        }
+        if (transmitOrNot) {
+          Serial.println();
+          Serial.print("TRANSMITTING: ");
+        }
+      }
+    }
   }
+
   if (!transmitOrNot) {
-    while (digitalRead(INPUT_PIN) == LOW) {
+    while (digitalRead(INPUT_PIN) == LOW && !transmitOrNot) {
       delay(TIME_UNIT / TEST_FREQUENCY);
     }
-    Serial.print("RECEIVING: ");
+    if (!transmitOrNot) {
+      Serial.println();
+      Serial.print("RECEIVING: ");
+    }
     while (!transmitOrNot) {
       receive();
     }
