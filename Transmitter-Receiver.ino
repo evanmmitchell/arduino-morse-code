@@ -15,7 +15,8 @@ const int RECEIVER_PIN = 2;
 const int TRANSMITTER_PIN = 6;
 const int TRANSMITTING_LED_PIN = LED_BUILTIN;
 
-const int TIME_UNIT = 10;        //Define the length of one Morse Code dot in milliseconds
+//Define the length of one Morse Code dot in milliseconds
+const int TIME_UNIT = 10;
 
 //Define Morse Code equivalent for each character
 const int DOT = 1;
@@ -86,6 +87,7 @@ int pulseLength(int pin, int value, int timeout){
 }
 
 void setup() {
+  
   //Initialize Serial communication
   Serial.begin(9600);
 
@@ -117,7 +119,7 @@ void loop() {
 
     //Iterate while receiving the same message
     while (currentPulse <= TIME_UNIT * 6) {
-      int receivedMorseCode[10] = {0};        //Define array to store received dots and dashes
+      int receivedMorseCode[10] = {0};
       int receivedIndex = 0;
       boolean sameCharacter = true;
 
