@@ -4,6 +4,7 @@ boolean transmitOrNot = true;
 int transmitIndex = 0;
 int offCounter = 0;
 
+const int TRANSMIT_OR_NOT_LED_PIN = LED_BUILTIN;
 const int LED_PIN = 6;
 const int INPUT_PIN = 2;
 const int TIME_UNIT = 200;
@@ -151,6 +152,7 @@ void receive() {
 void setup() {
   Serial.begin(9600);
   pinMode(LED_PIN, OUTPUT);
+  pinMode(TRANSMIT_OR_NOT_LED_PIN, OUTPUT);
   pinMode(INPUT_PIN, INPUT);
   input.toUpperCase();
 }
@@ -158,6 +160,7 @@ void setup() {
 void loop() {
   if (transmitOrNot) {
     delay(TIME_UNIT);
+    digitalWrite(TRANSMIT_OR_NOT_LED_PIN, HIGH);
     Serial.println();
     Serial.print("TRANSMITTING: ");
     transmitIndex = 0;
@@ -178,6 +181,7 @@ void loop() {
   }
 
   if (!transmitOrNot) {
+    digitalWrite(TRANSMIT_OR_NOT_LED_PIN, LOW);
     while (digitalRead(INPUT_PIN) == LOW && !transmitOrNot) {
       delay(TIME_UNIT / TEST_FREQUENCY);
     }
