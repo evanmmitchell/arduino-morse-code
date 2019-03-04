@@ -5,7 +5,7 @@ int transmitIndex = 0;
 int offCounter = 0;
 
 const int TRANSMIT_OR_NOT_LED_PIN = LED_BUILTIN;
-const int LED_PIN = 6;
+const int INFRARED_PIN = 6;
 const int INPUT_PIN = 2;
 const int TIME_UNIT = 200;
 const int TEST_FREQUENCY = 10;
@@ -75,13 +75,13 @@ void transmit() {
         Serial.print(CHARACTERS[characterIndex]);
         for (int dotDashIndex = 0; MORSE_CODE[characterIndex][dotDashIndex] != 0; dotDashIndex++) {
           if (MORSE_CODE[characterIndex][dotDashIndex] == DOT) {
-            digitalWrite(LED_PIN, HIGH);
+            digitalWrite(INFRARED_PIN, HIGH);
             delay(TIME_UNIT);
-            digitalWrite(LED_PIN, LOW);
+            digitalWrite(INFRARED_PIN, LOW);
           } else if (MORSE_CODE[characterIndex][dotDashIndex] == DASH) {
-            digitalWrite(LED_PIN, HIGH);
+            digitalWrite(INFRARED_PIN, HIGH);
             delay(TIME_UNIT * 3);
-            digitalWrite(LED_PIN, LOW);
+            digitalWrite(INFRARED_PIN, LOW);
          }
          delay(TIME_UNIT);
         }
@@ -102,7 +102,7 @@ void receive() {
   while (sameCharacter) {
     if (receiveIndex < sizeof(receivedMorseCode)) {
       int onCounter = 0;
-      while (digitalRead(INPUT_PIN) == HIGH){
+      while (digitalRead(INPUT_PIN) == LOW){
         delay(TIME_UNIT / TEST_FREQUENCY);
         onCounter++;
       }
@@ -118,7 +118,7 @@ void receive() {
         receiveIndex = sizeof(receivedMorseCode);
       }
       offCounter = 0;
-      while (digitalRead(INPUT_PIN) == LOW && offCounter <= TEST_FREQUENCY) {
+      while (digitalRead(INPUT_PIN) == HIGH && offCounter <= TEST_FREQUENCY) {
         delay(TIME_UNIT / TEST_FREQUENCY);
         offCounter++;
       }
@@ -137,7 +137,7 @@ void receive() {
       }
     }
   }
-  while (digitalRead(INPUT_PIN) == LOW) {
+  while (digitalRead(INPUT_PIN) == HIGH) {
     delay(TIME_UNIT / TEST_FREQUENCY);
     offCounter++;
   }
@@ -149,24 +149,17 @@ void receive() {
   }
 }
 
-void checkForInput() {
-  if (Serial.available() > 0) {
-    input = Serial.readString();
-    input.toUpperCase();
-    transmitOrNot = true;
-  }
-}
-
 void setup() {
   Serial.begin(9600);
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(INFRARED_PIN, OUTPUT);
   pinMode(TRANSMIT_OR_NOT_LED_PIN, OUTPUT);
-  pinMode(INPUT_PIN, INPUT);
+  pinMode(INPUT_PIN, INPUT_PULLUP);
   input.toUpperCase();
 }
 
 void loop() {
   if (transmitOrNot) {
+    delay(TIME_UNIT);
     digitalWrite(TRANSMIT_OR_NOT_LED_PIN, HIGH);
     Serial.println();
     Serial.print("TRANSMITTING: ");
@@ -174,18 +167,23 @@ void loop() {
     while (transmitOrNot) {
       transmit();
       transmitIndex++;
-      if (transmitIndex == input.length()) {
+      if (transmitIndex == input.length() && transmitOrNot) {
         transmitIndex = 0;
-        transmitOrNot = false;
+        for (int i = 0; i < 28 && transmitOrNot; i++) {
+          delay(TIME_UNIT);
+        }
+        if (transmitOrNot) {
+          Serial.println();
+          Serial.print("TRANSMITTING: ");
+        }
       }
     }
   }
 
   if (!transmitOrNot) {
     digitalWrite(TRANSMIT_OR_NOT_LED_PIN, LOW);
-    while (digitalRead(INPUT_PIN) == LOW && !transmitOrNot) {
+    while (digitalRead(INPUT_PIN) == HIGH && !transmitOrNot) {
       delay(TIME_UNIT / TEST_FREQUENCY);
-      checkForInput();
     }
     if (!transmitOrNot) {
       Serial.println();
