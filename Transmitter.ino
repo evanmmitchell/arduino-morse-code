@@ -54,15 +54,21 @@ const int MORSE_CODE[][10] = {
 };
 
 const char CHARACTERS[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H','I', 'J', 'K', 'L','M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X','Y', 'Z', '1', '2','3', '4', '5', '6', '7', '8', '9', '0', '.', ',', '?', '!','(', ')', ':', ';'};
-  
-void transmitStringInMorseCode(String textInput) {
-  for (int i = 0; i < textInput.length(); i++) {
-    if (textInput[i] == ' ') {
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  input.toUpperCase();
+}
+
+void loop() {
+  for (int i = 0; i < input.length(); i++) {
+    if (input[i] == ' ') {
       Serial.print(' ');
       delay(timeUnit * 4);
     } else {
       int j = 0;
-      while (j < sizeof(CHARACTERS) && textInput[i] != CHARACTERS[j]) {
+      while (j < sizeof(CHARACTERS) && input[i] != CHARACTERS[j]) {
         j++;
       }
       if (j < sizeof(CHARACTERS)) {
@@ -85,16 +91,6 @@ void transmitStringInMorseCode(String textInput) {
       }
     }
   }
-}
-
-void setup() {
-  Serial.begin(9600);
-  pinMode(ledPin, OUTPUT);
-  input.toUpperCase();
-}
-
-void loop() {
-  transmitStringInMorseCode(input);
   delay(timeUnit * 28);
   Serial.println();
 }
