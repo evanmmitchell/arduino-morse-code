@@ -1,8 +1,8 @@
 int inputPin = 2;
 int timeUnit = 200;
 int testFrequency = 10;
+int offCounter = 0;
 boolean initiated = false;
-unsigned long previousMillis;
 
 const int DOT = 1;
 const int DASH = 2;
@@ -62,7 +62,6 @@ void setup() {
 }
 
 void loop() {
-  int offCounter = 0;
   while (digitalRead(inputPin) == LOW) {
     delay(timeUnit / testFrequency);
     offCounter++;
@@ -74,13 +73,13 @@ void loop() {
   }
 
   initiated = true;
-  previousMillis = millis();
-  int currentMorseCode[10];
+  boolean sameCharacter = true;
+  int currentMorseCode[10] = {0};
   int index = 0;
   int numberOfDots = 0;
   int numberOfDashes = 0;
 
-  while ((millis() - timeUnit - previousMillis) < (timeUnit * numberOfDots * 2 + timeUnit * numberOfDashes * 4)) {
+  while (sameCharacter) {
     if (index < sizeof(currentMorseCode)) {
       int onCounter = 0;
       while (digitalRead(inputPin) == HIGH){
@@ -99,12 +98,13 @@ void loop() {
         index = sizeof(currentMorseCode);
       }
       offCounter = 0;
-      while (digitalRead(inputPin) == LOW && offCounter <= testFrequency) {
+      while (digitalRead(inputPin) == LOW && offCounter <= testFrequency * 1) {
         delay(timeUnit / testFrequency);
         offCounter++;
       }
-    } else {
-      Serial.println("ERROR: Check value of timeUnit");
+      if (offCounter > testFrequency * 1) {
+        sameCharacter = false;
+      }
     }
   }
 
