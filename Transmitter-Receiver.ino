@@ -149,6 +149,14 @@ void receive() {
   }
 }
 
+void checkForInput() {
+  if (Serial.available() > 0) {
+    input = Serial.readString();
+    input.toUpperCase();
+    transmitOrNot = true;
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   pinMode(LED_PIN, OUTPUT);
@@ -159,7 +167,6 @@ void setup() {
 
 void loop() {
   if (transmitOrNot) {
-    delay(TIME_UNIT);
     digitalWrite(TRANSMIT_OR_NOT_LED_PIN, HIGH);
     Serial.println();
     Serial.print("TRANSMITTING: ");
@@ -167,15 +174,9 @@ void loop() {
     while (transmitOrNot) {
       transmit();
       transmitIndex++;
-      if (transmitIndex == input.length() && transmitOrNot) {
+      if (transmitIndex == input.length()) {
         transmitIndex = 0;
-        for (int i = 0; i < 28 && transmitOrNot; i++) {
-          delay(TIME_UNIT);
-        }
-        if (transmitOrNot) {
-          Serial.println();
-          Serial.print("TRANSMITTING: ");
-        }
+        transmitOrNot = false;
       }
     }
   }
@@ -184,6 +185,7 @@ void loop() {
     digitalWrite(TRANSMIT_OR_NOT_LED_PIN, LOW);
     while (digitalRead(INPUT_PIN) == LOW && !transmitOrNot) {
       delay(TIME_UNIT / TEST_FREQUENCY);
+      checkForInput();
     }
     if (!transmitOrNot) {
       Serial.println();
