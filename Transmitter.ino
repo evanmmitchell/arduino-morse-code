@@ -1,518 +1,196 @@
 String input = "Hello, World!";
+
+const int DOT = 1;
+const int DASH = 2;
 int ledPin = 6;
 int timeUnit = 200;
 
-void dot() {
-  digitalWrite(ledPin, HIGH);
-  delay(timeUnit);
-  digitalWrite(ledPin, LOW);
-}
+const int CHARACTERS[][10] = {
+  {DOT, DASH},
+  {DASH, DOT, DOT, DOT},
+  {DASH, DOT, DASH, DOT},
+  {DASH, DOT, DOT},
+  {DOT},
+  {DOT, DOT, DASH, DOT},
+  {DASH, DASH, DOT},
+  {DOT, DOT, DOT, DOT},
+  {DOT, DOT},
+  {DOT, DASH, DASH, DASH},
+  {DASH, DOT, DASH},
+  {DOT, DASH, DOT, DOT},
+  {DASH, DASH},
+  {DASH, DOT},
+  {DASH, DASH, DASH},
+  {DOT,DASH, DASH, DOT},
+  {DASH, DASH, DOT, DASH},
+  {DOT, DASH, DOT},
+  {DOT, DOT, DOT},
+  {DASH},
+  {DOT, DOT, DASH},
+  {DOT, DOT, DOT, DASH},
+  {DOT, DASH, DASH},
+  {DASH, DOT, DOT, DASH},
+  {DASH, DOT, DASH, DASH},
+  
+};
 
-void dash() {
-  digitalWrite(ledPin, HIGH);
-  delay(timeUnit * 3);
-  digitalWrite(ledPin, LOW);
+const int A = 0, B = 1, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11, L = 12, M = 13, N = 14, O = 15, P = 16, Q = 17, R = 18, S = 19, T = 20, U = 21, V = 22, W = 23, X = 24, Z = 25, ONE = 26, TWO = 27, THREE = 28, FOUR = 29, FIVE = 30, SIX = 31, SEVEN = 32, EIGHT = 33, NINE = 34, ZERO = 35, PERIOD = 36, COMMA = 37, QUESTION = 38, EXCLAMATION = 39, OPEN_PARENTHESIS = 40, CLOSE_PARENTHESIS = 41, COLON = 42, SEMICOLON = 43;
+
+void transmitMorseCode(const int currentChar[]) {
+  for (int i = 0; currentChar[i] != 0; i++) {
+    if (currentChar[i] == DOT) {
+      digitalWrite(ledPin, HIGH);
+      delay(timeUnit);
+      digitalWrite(ledPin, LOW);
+    } else if (currentChar[i] == DASH) {
+      digitalWrite(ledPin, HIGH);
+      delay(timeUnit * 3);
+      digitalWrite(ledPin, LOW);
+    }
+    delay(timeUnit);
+  }
+  delay(timeUnit * 2);
 }
 
 void transmitStringInMorseCode(String textInput) {
   for (int i = 0; i < textInput.length(); i++) {
+    Serial.print(textInput[i]);
     switch (textInput[i]) {
       case ' ':
-        Serial.print(' ');
         delay(timeUnit * 4);
         break;
       case 'A':
-        Serial.print('A');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode(CHARACTERS[A]);
         break;
       case 'B':
-        Serial.print('B');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode(CHARACTERS[B]);
         break;
       case 'C':
-        Serial.print('C');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'D':
-        Serial.print('D');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'E':
-        Serial.print('E');
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'F':
-        Serial.print('F');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'G':
-        Serial.print('G');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'H':
-        Serial.print('H');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'I':
-        Serial.print('I');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'J':
-        Serial.print('J');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'K':
-        Serial.print('K');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
-        break;      
+        transmitMorseCode();
+        break;
       case 'L':
-        Serial.print('L');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'M':
-        Serial.print('M');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'N':
-        Serial.print('N');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'O':
-        Serial.print('O');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'P':
-        Serial.print('P');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'Q':
-        Serial.print('Q');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'R':
-        Serial.print('R');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'S':
-        Serial.print('S');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'T':
-        Serial.print('T');
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'U':
-        Serial.print('U');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'V':
-        Serial.print('V');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'W':
-        Serial.print('W');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'X':
-        Serial.print('X');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'Y':
-        Serial.print('Y');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode();
         break;
       case 'Z':
-        Serial.print('Z');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DOT, DOT});
         break;
       case '1':
-        Serial.print('1');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DASH, DASH, DASH, DASH});
         break;
       case '2':
-        Serial.print('2');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DOT, DASH, DASH, DASH});
         break;
       case '3':
-        Serial.print('3');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DOT, DOT, DASH, DASH});
         break;
       case '4':
-        Serial.print('4');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DOT, DOT, DOT, DASH});
         break;
       case '5':
-        Serial.print('5');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DOT, DOT, DOT, DOT});
         break;
       case '6':
-        Serial.print('6');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DOT, DOT, DOT, DOT});
         break;
       case '7':
-        Serial.print('7');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DOT, DOT, DOT});
         break;
       case '8':
-        Serial.print('8');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DASH, DOT, DOT});
         break;
       case '9':
-        Serial.print('9');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DASH, DASH, DOT});
         break;
       case '0':
-        Serial.print('0');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DASH, DASH, DASH});
         break;
       case '.':
-        Serial.print('.');
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DASH, DOT, DASH, DOT, DASH});
         break;
       case ',':
-        Serial.print(',');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DOT, DOT, DASH, DASH});
         break;
       case '?':
-        Serial.print('?');
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DOT, DOT, DASH, DASH, DOT, DOT});
         break;
       case '!':
-        Serial.print('!');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DOT, DASH, DOT, DASH, DASH});
         break;
       case '(':
-        Serial.print('(');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DOT, DASH, DASH, DOT});
         break;
       case ')':
-        Serial.print(')');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DOT, DASH, DASH, DOT, DASH});
         break;
       case ':':
-        Serial.print(':');
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DASH, DASH, DOT, DOT});
         break;
       case ';':
-        Serial.print(';');
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit);
-        dash();
-        delay(timeUnit);
-        dot();
-        delay(timeUnit * 3);
+        transmitMorseCode({DASH, DOT, DASH, DOT, DASH});
         break;
-      default:
-        Serial.print(textInput[i]);
     }
   }
 }
