@@ -10,7 +10,7 @@
  */
 
 
-//Define pins where the IR sensor, IR emitter, and LED signaling transmission connect to the board
+//Define pins where the IR receiver, IR emitter, and LED signaling transmission connect to the board
 const int RECEIVER_PIN = 2;
 const int TRANSMITTER_PIN = 6;
 const int TRANSMITTING_LED_PIN = LED_BUILTIN;
